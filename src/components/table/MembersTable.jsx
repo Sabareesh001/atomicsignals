@@ -9,63 +9,196 @@ import {
   Tooltip,
   TableFooter,
   TablePagination,
-  tooltipClasses
+  tooltipClasses,
+  Switch,
 } from "@mui/material";
+import ReactSpeedometer from "react-d3-speedometer";
+import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import Table from "@mui/material/Table";
-const MembersTable = ({ headings, stickyheadings, rows, stickyColumnData }) => {
+import IOSSwitch from "../switch/Switch";
+import StyledButton from "../button/Button";
+import { useEffect, useState } from "react";
+const MembersTable = ({
+  headings,
+  stickyheadings,
+  rows,
+  stickyColumnData,
+  searchQuery = "",
+}) => {
+  const [filteredRows, setFilteredRows] = useState([]);
+  const [currPage, setCurrPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  useEffect(() => {
+    const modifiedRows = rows.filter((data) => {
+      return data?.profile?.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase().trim());
+    });
+    const startIndex = currPage * rowsPerPage;
+    const endIndex = startIndex + rowsPerPage;
+    console.log(startIndex, endIndex);
+    setFilteredRows(modifiedRows.slice(startIndex, endIndex));
+  }, [rows, rowsPerPage, currPage, searchQuery]);
   return (
-    <StyledTableContainer>
-      <StyledTable>
-        <TableHead>
-          <TableRow>
-            {headings?.map((data) => (
-              <TableCell>{data}</TableCell>
-            ))}
-            {stickyheadings?.map((data) => (
-              <StickyCell>{data}</StickyCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows?.map((row) => {
-            return (
-              <TableRow>
-                <TableCell>
-                  <MemberProfile>
-                    <Avatar src={row?.profile?.image}></Avatar>{" "}
-                    {row?.profile?.name}
-                  </MemberProfile>
-                </TableCell>
-                <TableCell>{row?.designation}</TableCell>
-                <TableCell>
-                  <SignalList>
-                    {row?.signals.map((signal) => {
-                      return (
-                        <LightTooltip title={<ToolTipContent><div>{`${signal?.name}`}</div> {`last updated ${signal?.last_updated}`}</ToolTipContent>} arrow placement="bottom">
-                        
-                        <StyledAvatar
-                          color={signal?.color}
-                          bgColor={signal?.bgcolor}
+    <div
+      style={{
+        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.12) ",
+      }}
+    >
+      <StyledTableContainer>
+        <StyledTable>
+          <StyledTableHead>
+            <TableRow>
+              {headings?.map((data) => (
+                <StyledTableHeading>{data}</StyledTableHeading>
+              ))}
+              {stickyheadings?.map((data) => (
+                <StickyHeading align="center">
+                  <ActionContainer>
+                    <ActionHeaderContainerSeparator />
+                  </ActionContainer>
+                  {data}
+                </StickyHeading>
+              ))}
+            </TableRow>
+          </StyledTableHead>
+          <TableBody>
+            {filteredRows?.map((row) => {
+              return (
+                <TableRow>
+                  <StyledTableCell>
+                    <MemberProfile>
+                      <ProfileAvatar
+                        height={"35px"}
+                        width={"35px"}
+                        src={row?.profile?.image}
+                      ></ProfileAvatar>{" "}
+                      {row?.profile?.name}
+                    </MemberProfile>
+                  </StyledTableCell>
+                  <StyledTableCell>{row?.designation}</StyledTableCell>
+                  <StyledTableCell>{row?.department}</StyledTableCell>
+                  <StyledTableCell>
+                    <SignalList>
+                      {row?.signals.map((signal) => {
+                        return (
+                          <LightTooltip
+                            fontSize={"12px"}
+                            title={
+                              <ToolTipContent>
+                                <div>{`${signal?.name}`}</div>{" "}
+                                {`last updated ${signal?.last_updated}`}
+                              </ToolTipContent>
+                            }
+                            arrow
+                            placement="bottom"
+                          >
+                            <SignalsAvatar
+                              color={signal?.color}
+                              bgColor={signal?.bgcolor}
+                            >
+                              {signal?.name[0]}
+                            </SignalsAvatar>
+                          </LightTooltip>
+                        );
+                      })}
+                    </SignalList>
+                  </StyledTableCell>
+                  <LightTooltip
+                    arrow
+                    slotProps={{
+                      popper: {
+                        modifiers: [
+                          {
+                            name: "offset",
+                            options: {
+                              offset: [0, -25],
+                            },
+                          },
+                        ],
+                      },
+                    }}
+                    title="Overall Good"
+                  >
+                    <StyledTableCell
+                      padding="0px"
+                      align="center"
+                      minWidth={190}
+                    >
+                      <ReactSpeedometer
+                        width={100}
+                        value={50}
+                        height={70}
+                        paddingHorizontal={0}
+                        paddingVertical={0}
+                        currentValueText={""}
+                        ringWidth={10}
+                        needleColor={"black"}
+                        maxSegmentLabels={0}
+                        needleHeightRatio={0.5}
+                        minValue={0}
+                        maxValue={100}
+                      />
+                    </StyledTableCell>
+                  </LightTooltip>
+                  <StyledTableCell minWidth={290}>
+                    <MemberProfile>
+                      <ProfileAvatar
+                        height={"35px"}
+                        width={"35px"}
+                        src={row?.reporting_to?.[0]?.image}
+                      ></ProfileAvatar>{" "}
+                      {row?.reporting_to?.[0]?.name}
+                      {row?.reporting_to?.length > 1 && (
+                        <LightTooltip
+                          title={
+                            <ReportingList>
+                              {row?.reporting_to?.slice(1)?.map((data) => (
+                                <MemberProfile fontSize={"14px"}>
+                                  <ProfileAvatar
+                                    height={"25px"}
+                                    width={"25px"}
+                                    src={data?.image}
+                                  ></ProfileAvatar>{" "}
+                                  {data.name}
+                                </MemberProfile>
+                              ))}
+                            </ReportingList>
+                          }
                         >
-                          {signal?.name[0]}
-                        </StyledAvatar>
-                            
+                          <MoreTag>
+                            + {row?.reporting_to?.length - 1} More{" "}
+                          </MoreTag>
                         </LightTooltip>
-                      );
-                    })}
-                  </SignalList>
-                </TableCell>
-                <TableCell>{row?.performance}</TableCell>
-                <TableCell>{row?.reporting_to?.name}</TableCell>
-                <TableCell>{row?.role}</TableCell>
-                <TableCell>{row?.email}</TableCell>
-                <TableCell>{row?.experience}</TableCell>
-                <TableCell>{row?.status}</TableCell>
-                <StickyCell>Actions</StickyCell>
-                {/* {
+                      )}
+                    </MemberProfile>
+                  </StyledTableCell>
+                  <StyledTableCell>{row?.role}</StyledTableCell>
+                  <StyledTableCell>{row?.email}</StyledTableCell>
+                  <StyledTableCell>{row?.experience}</StyledTableCell>
+                  <StyledTableCell>
+                    <IOSSwitch checked={row?.status} />{" "}
+                    {row?.status ? "Active" : "Deactive"}
+                  </StyledTableCell>
+                  <StickyCell align="center">
+                    <ActionContainer>
+                      <ActionContainerSeparator />
+                      <ActionContent>
+                        <StyledButton
+                          fullWidth
+                          size="small"
+                          variant="contained"
+                        >
+                          Add Feedback
+                        </StyledButton>
+                        <PencilIcon />
+                      </ActionContent>
+                    </ActionContainer>
+                  </StickyCell>
+                  {/* {
                                 row?.map((data)=>(<TableCell>{data}</TableCell>))
                             } */}
-                {/* {
+                  {/* {
                                 Array(headings.length-row.length+1).fill('nil').map((data)=>(
                                     <TableCell>
                                     {data}
@@ -77,40 +210,109 @@ const MembersTable = ({ headings, stickyheadings, rows, stickyColumnData }) => {
                                     return(col?.map((data)=>(<StickyCell>{data}</StickyCell>)))
                                 })
                             } */}
-              </TableRow>
-            );
-          })}
-           
-        </TableBody>
-        <TableFooter>
-           <TableRow>
-            <TablePagination colSpan={8}  count={rows.length} />
-           </TableRow>
-        </TableFooter>
-      </StyledTable>
-    </StyledTableContainer>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </StyledTable>
+      </StyledTableContainer>
+      <StyledBottomTableContainer>
+        <Table>
+          <StyledTableFooter>
+            <TableRow>
+              <StyledTablePagination
+                page={currPage}
+                onRowsPerPageChange={(e, value) => {
+                  setRowsPerPage(e.target.value);
+                }}
+                onPageChange={(e, page) => {
+                  setCurrPage(page);
+                }}
+                rowsPerPage={rowsPerPage}
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                count={rows.length}
+              />
+            </TableRow>
+          </StyledTableFooter>
+        </Table>
+      </StyledBottomTableContainer>
+    </div>
   );
 };
 
+const ReportingList = styled("div")({
+  display: "flex",
+  flexDirection: "column",
+  gap: "10px",
+  padding: "5px",
+});
+
 const StyledTableContainer = styled(TableContainer)({
   backgroundColor: "white",
+  borderRadius: "10px  10px 0px 0px ",
+  position: "relative",
+  fontFamily: "Poppins",
+  maxHeight: 600,
 });
 
-const MemberProfile = styled("div")({
+const StyledBottomTableContainer = styled(TableContainer)({
+  backgroundColor: "white",
+  borderRadius: "0px 0px 10px  10px",
+  fontFamily: "Poppins",
+});
+
+const StyledTablePagination = styled(TablePagination)({});
+
+const StyledTableFooter = styled(TableFooter)({
+  borderTop: "solid rgba(0, 0, 0, 0.12) 0.5px",
+});
+
+const MemberProfile = styled("div")(({ fontSize }) => ({
   display: "flex",
   alignItems: "center",
-  gap: "10px",
+  gap: "5px",
+  fontSize,
+  width: "100%",
+}));
+
+const MoreTag = styled("div")({
+  color: "#49C792",
 });
 
-const StyledAvatar = styled(Avatar)(({ bgColor, color }) => ({
+const SignalsAvatar = styled(Avatar)(({ bgColor, color }) => ({
   backgroundColor: bgColor,
   color: color,
+  padding: 0,
+  width: "30px",
+  height: "30px",
+  fontSize: "small",
+}));
+
+const StyledTableHead = styled(TableHead)({
+  fontWeight: "bold",
+  fontFamily: "Poppins",
+});
+
+const StyledTableHeading = styled(TableCell)(({ minWidth }) => ({
+  fontWeight: "500",
+  fontSize: "16px",
+  fontFamily: "Poppins",
+  minWidth: minWidth || 130,
+}));
+
+const StyledTableCell = styled(TableCell)(({ minWidth }) => ({
+  fontSize: "16px",
+  borderBottom: "none",
+  padding: "0px 15px",
+  cursor: "pointer",
+  fontFamily: "Poppins",
+  minWidth: minWidth || 130,
 }));
 
 const ToolTipContent = styled("div")({
-    display:'flex',
-    flexDirection:'column'
-})
+  display: "flex",
+  flexDirection: "column",
+});
 
 const SignalList = styled("div")({
   display: "flex",
@@ -118,31 +320,89 @@ const SignalList = styled("div")({
   gap: "10px",
 });
 
-const LightTooltip = styled(({ className, ...props }) => (
-    <Tooltip {...props} classes={{ popper: className }} />
-  ))(({ theme }) => ({
-    [`& .${tooltipClasses.tooltip}`]: {
-      backgroundColor: theme.palette.common.white,
-      color: 'rgba(0, 0, 0, 0.87)',
-      boxShadow: '0px 0px 10px grey ',
-      fontSize: 11,
+const LightTooltip = styled(({ className, fontSize, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme, fontSize }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.common.white,
+    color: "rgba(0, 0, 0, 0.87)",
+    boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.12) ",
+    fontSize: fontSize || 11,
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: theme.palette.common.white,
+  },
+}));
 
-    },
-    [`& .${tooltipClasses.arrow}`]: {
-        color: theme.palette.common.white,
-      },
-  }));
+const StickyHeading = styled(TableCell)({
+  position: "sticky",
+  right: 0,
+  zIndex: 1,
+  fontWeight: "500",
+  fontSize: "18px",
+  fontFamily: "Poppins",
+  minWidth: 150,
+  backgroundColor: "white",
+});
+
+const ProfileAvatar = styled(Avatar)(({ height, width, fontSize }) => ({
+  height,
+  width,
+  fontSize,
+}));
 
 const StickyCell = styled(TableCell)({
   position: "sticky",
   right: 0,
+  fontSize: "16px",
   zIndex: 1,
+  minWidth: 200,
+  cursor: "pointer",
   backgroundColor: "white",
+  borderBottom: "none",
+  padding: "20px 10px",
+  fontFamily: "Poppins",
+});
+
+const PencilIcon = styled(CreateOutlinedIcon)({
+  color: "#49C792",
+  backgroundColor: "#EEFBF6",
+  padding: "5px",
+  borderRadius: "100px",
+});
+
+const ActionContainer = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  position: "relative",
+  width: "100%",
+});
+
+const ActionContainerSeparator = styled("div")({
+  borderLeft: "solid rgba(0, 0, 0, 0.12) 1px",
+  height: "80px",
+  position: "absolute",
+  transform: "translate(-10px,0%)",
+});
+
+const ActionHeaderContainerSeparator = styled("div")({
+  borderLeft: "solid rgba(0, 0, 0, 0.12) 1px",
+  height: "100px",
+  position: "absolute",
+  transform: "translate(-16px,0%)",
+});
+
+const ActionContent = styled("div")({
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  justifyContent: "center",
+  flex: 1,
 });
 
 const StyledTable = styled(Table)({
-  tableLayout: "fixed",
-  minWidth: 2000,
+  position: "relative",
 });
 
 export default MembersTable;

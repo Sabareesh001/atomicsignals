@@ -16,6 +16,7 @@ import ReactSpeedometer from "react-d3-speedometer";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
 import Table from "@mui/material/Table";
 import IOSSwitch from "../switch/Switch";
+import PencilIconSvg from "../../assets/icons/pencil.svg";
 import StyledButton from "../button/Button";
 import { useEffect, useState } from "react";
 const MembersTable = ({
@@ -23,6 +24,7 @@ const MembersTable = ({
   stickyheadings,
   rows,
   stickyColumnData,
+  setRows,
   searchQuery = "",
 }) => {
   const [filteredRows, setFilteredRows] = useState([]);
@@ -42,9 +44,12 @@ const MembersTable = ({
   return (
     <div
       style={{
+        position: "relative",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.12) ",
       }}
     >
+      <ActionStickyContainerSeparator />
+      <ActionHeaderContainerSeparator />
       <StyledTableContainer>
         <StyledTable>
           <StyledTableHead>
@@ -53,17 +58,12 @@ const MembersTable = ({
                 <StyledTableHeading>{data}</StyledTableHeading>
               ))}
               {stickyheadings?.map((data) => (
-                <StickyHeading align="center">
-                  <ActionContainer>
-                    <ActionHeaderContainerSeparator />
-                  </ActionContainer>
-                  {data}
-                </StickyHeading>
+                <StickyHeading align="center">{data}</StickyHeading>
               ))}
             </TableRow>
           </StyledTableHead>
           <TableBody>
-            {filteredRows?.map((row) => {
+            {filteredRows?.map((row, i) => {
               return (
                 <TableRow>
                   <StyledTableCell>
@@ -135,7 +135,7 @@ const MembersTable = ({
                         ringWidth={10}
                         needleColor={"black"}
                         maxSegmentLabels={0}
-                        needleHeightRatio={0.5}
+                        needleHeightRatio={0.4}
                         minValue={0}
                         maxValue={100}
                       />
@@ -177,12 +177,23 @@ const MembersTable = ({
                   <StyledTableCell>{row?.email}</StyledTableCell>
                   <StyledTableCell>{row?.experience}</StyledTableCell>
                   <StyledTableCell>
-                    <IOSSwitch checked={row?.status} />{" "}
+                    <IOSSwitch
+                      onChange={(e) => {
+                        setRows((prev) => {
+                          const newPrev = [...prev];
+                          const target = newPrev.findIndex(
+                            (data) => data.id === row?.id
+                          );
+                          newPrev[target].status = e.target.checked ? 1 : 0;
+                          return newPrev;
+                        });
+                      }}
+                      checked={row?.status}
+                    />{" "}
                     {row?.status ? "Active" : "Deactive"}
                   </StyledTableCell>
                   <StickyCell align="center">
                     <ActionContainer>
-                      <ActionContainerSeparator />
                       <ActionContent>
                         <StyledButton
                           fullWidth
@@ -252,16 +263,25 @@ const StyledTableContainer = styled(TableContainer)({
   borderRadius: "10px  10px 0px 0px ",
   position: "relative",
   fontFamily: "Poppins",
+  minHeight: 600,
   maxHeight: 600,
+  scrollSnapType: "both mandatory",
+  scrollSnapAlign: "start",
 });
 
 const StyledBottomTableContainer = styled(TableContainer)({
   backgroundColor: "white",
   borderRadius: "0px 0px 10px  10px",
   fontFamily: "Poppins",
+  zIndex: 10,
+  position: "relative",
 });
 
-const StyledTablePagination = styled(TablePagination)({});
+const StyledTablePagination = styled(TablePagination)({
+  "& .MuiTablePagination-root": {
+    fontFamily: "Poppins",
+  },
+});
 
 const StyledTableFooter = styled(TableFooter)({
   borderTop: "solid rgba(0, 0, 0, 0.12) 0.5px",
@@ -298,6 +318,11 @@ const StyledTableHeading = styled(TableCell)(({ minWidth }) => ({
   fontSize: "16px",
   fontFamily: "Poppins",
   minWidth: minWidth || 130,
+  position: "sticky",
+  top: 0,
+  backgroundColor: "white",
+  zIndex: 1,
+  borderBottom: "none",
 }));
 
 const StyledTableCell = styled(TableCell)(({ minWidth }) => ({
@@ -337,12 +362,16 @@ const LightTooltip = styled(({ className, fontSize, ...props }) => (
 const StickyHeading = styled(TableCell)({
   position: "sticky",
   right: 0,
-  zIndex: 1,
+  zIndex: 2,
   fontWeight: "500",
   fontSize: "18px",
   fontFamily: "Poppins",
+  borderBottom: "none",
   minWidth: 150,
   backgroundColor: "white",
+  position: "sticky",
+  bottom: 0,
+  top: 0,
 });
 
 const ProfileAvatar = styled(Avatar)(({ height, width, fontSize }) => ({
@@ -364,10 +393,10 @@ const StickyCell = styled(TableCell)({
   fontFamily: "Poppins",
 });
 
-const PencilIcon = styled(CreateOutlinedIcon)({
+const PencilIcon = styled((props) => <img src={PencilIconSvg} {...props} />)({
   color: "#49C792",
   backgroundColor: "#EEFBF6",
-  padding: "5px",
+  padding: "2px",
   borderRadius: "100px",
 });
 
@@ -379,18 +408,21 @@ const ActionContainer = styled("div")({
   width: "100%",
 });
 
-const ActionContainerSeparator = styled("div")({
+const ActionStickyContainerSeparator = styled("div")({
   borderLeft: "solid rgba(0, 0, 0, 0.12) 1px",
-  height: "80px",
+  height: "100%",
   position: "absolute",
-  transform: "translate(-10px,0%)",
+  zIndex: 4,
+  right: 0,
+  transform: "translate(-220px,0%)",
 });
 
 const ActionHeaderContainerSeparator = styled("div")({
-  borderLeft: "solid rgba(0, 0, 0, 0.12) 1px",
-  height: "100px",
+  width: "100%",
+  borderBottom: "solid rgba(0, 0, 0, 0.12) 1px",
   position: "absolute",
-  transform: "translate(-16px,0%)",
+  transform: "translate(0px,55px)",
+  zIndex: 10,
 });
 
 const ActionContent = styled("div")({

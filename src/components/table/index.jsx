@@ -1,6 +1,6 @@
 import MembersTable from "./MembersTable";
 
-const Table = ({ rowData, stickyColumnData, searchQuery = "" }) => {
+const Table = ({ rowData, stickyColumnData, searchQuery = "", setRowData }) => {
   const headings = [
     "Name",
     "Designation",
@@ -20,6 +20,7 @@ const Table = ({ rowData, stickyColumnData, searchQuery = "" }) => {
       headings={headings}
       stickyheadings={stickyHeadings}
       rows={rowData}
+      setRows={setRowData}
       stickyColumnData={stickyColumnData}
       searchQuery={searchQuery}
     />

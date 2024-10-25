@@ -5,12 +5,14 @@ import PublishIcon from "@mui/icons-material/Publish";
 import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 import SearchBox from "../../components/searchbox/SearchBox";
 import CheckBox from "../../components/checkbox/CheckBox";
-import { useState } from "react";
+import ImportIconSvg from "../../assets/icons/import.svg";
+import { useEffect, useState } from "react";
 const TeamMembers = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
-  let rowData = [
+  const [rowData, setRowData] = useState([
     {
+      id: 40,
       profile: {
         name: "Ramesh",
         image:
@@ -61,6 +63,7 @@ const TeamMembers = () => {
     },
 
     {
+      id: 45,
       profile: {
         name: "Kumaresan",
         image:
@@ -72,6 +75,11 @@ const TeamMembers = () => {
         {
           name: "Excellent",
           bgcolor: "darkgreen",
+          last_updated: "07 Feb '23, 11:30 AM",
+        },
+        {
+          name: "Bad",
+          bgcolor: "red",
           last_updated: "07 Feb '23, 11:30 AM",
         },
         {
@@ -99,9 +107,20 @@ const TeamMembers = () => {
       experience: "3 yrs 4 Mon",
       status: 0,
     },
-  ];
+  ]);
 
-  rowData = [...rowData, ...Array(10).fill(rowData[0])];
+  useEffect(() => {
+    setRowData((prev) => [
+      ...prev,
+      ...Array(10)
+        .fill({})
+        .map((_, i) => {
+          const modifiedRowData = { ...rowData[0] };
+          modifiedRowData.id = i;
+          return modifiedRowData;
+        }),
+    ]);
+  }, []);
 
   const stickyColumnData = [["Im Sticky"]];
 
@@ -141,6 +160,7 @@ const TeamMembers = () => {
       <Table
         searchQuery={searchQuery}
         rowData={rowData}
+        setRowData={setRowData}
         stickyColumnData={stickyColumnData}
       />
     </TeamMembersContainer>
@@ -165,9 +185,9 @@ const TeamMembersPageTools = styled("div")({
   gap: "10px",
 });
 
-const ImportIcon = styled(PublishIcon)({
-  rotate: "180deg",
-});
+const ImportIcon = styled((props) => <img src={ImportIconSvg} {...props} />)(
+  {}
+);
 
 const VerticalDivider = styled(Divider)({
   "&.MuiDivider-vertical": {

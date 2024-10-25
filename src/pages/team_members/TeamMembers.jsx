@@ -127,7 +127,7 @@ const TeamMembers = () => {
   return (
     <TeamMembersContainer>
       <TeamMembersHeader>
-        <Typography fontFamily={"Poppins"} fontSize={"20px"}>
+        <Typography fontFamily={"Poppins"} fontSize={"1.2em"}>
           Team members
         </Typography>
         <TeamMembersPageTools>

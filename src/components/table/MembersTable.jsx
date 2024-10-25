@@ -11,6 +11,7 @@ import {
   TablePagination,
   tooltipClasses,
   Switch,
+  Box,
 } from "@mui/material";
 import ReactSpeedometer from "react-d3-speedometer";
 import CreateOutlinedIcon from "@mui/icons-material/CreateOutlined";
@@ -42,30 +43,26 @@ const MembersTable = ({
     setFilteredRows(modifiedRows.slice(startIndex, endIndex));
   }, [rows, rowsPerPage, currPage, searchQuery]);
   return (
-    <div
-      style={{
-        position: "relative",
-        boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.12) ",
-      }}
-    >
+    <TableDiv>
       <ActionStickyContainerSeparator />
       <ActionHeaderContainerSeparator />
+      <ActionPaginationContainerSeparator />
       <StyledTableContainer>
         <StyledTable>
           <StyledTableHead>
-            <TableRow>
+            <StyledTableRow>
               {headings?.map((data) => (
                 <StyledTableHeading>{data}</StyledTableHeading>
               ))}
               {stickyheadings?.map((data) => (
                 <StickyHeading align="center">{data}</StickyHeading>
               ))}
-            </TableRow>
+            </StyledTableRow>
           </StyledTableHead>
           <TableBody>
             {filteredRows?.map((row, i) => {
               return (
-                <TableRow>
+                <StyledTableRow>
                   <StyledTableCell>
                     <MemberProfile>
                       <ProfileAvatar
@@ -83,7 +80,7 @@ const MembersTable = ({
                       {row?.signals.map((signal) => {
                         return (
                           <LightTooltip
-                            fontSize={"12px"}
+                            fontSize={"0.8em"}
                             title={
                               <ToolTipContent>
                                 <div>{`${signal?.name}`}</div>{" "}
@@ -154,7 +151,7 @@ const MembersTable = ({
                           title={
                             <ReportingList>
                               {row?.reporting_to?.slice(1)?.map((data) => (
-                                <MemberProfile fontSize={"14px"}>
+                                <MemberProfile fontSize={"1.4em"}>
                                   <ProfileAvatar
                                     height={"25px"}
                                     width={"25px"}
@@ -206,22 +203,7 @@ const MembersTable = ({
                       </ActionContent>
                     </ActionContainer>
                   </StickyCell>
-                  {/* {
-                                row?.map((data)=>(<TableCell>{data}</TableCell>))
-                            } */}
-                  {/* {
-                                Array(headings.length-row.length+1).fill('nil').map((data)=>(
-                                    <TableCell>
-                                    {data}
-                                    </TableCell>
-                                ))
-                            }
-                            {
-                                stickyColumnData?.map((col)=>{
-                                    return(col?.map((data)=>(<StickyCell>{data}</StickyCell>)))
-                                })
-                            } */}
-                </TableRow>
+                </StyledTableRow>
               );
             })}
           </TableBody>
@@ -247,7 +229,7 @@ const MembersTable = ({
           </StyledTableFooter>
         </Table>
       </StyledBottomTableContainer>
-    </div>
+    </TableDiv>
   );
 };
 
@@ -258,19 +240,28 @@ const ReportingList = styled("div")({
   padding: "5px",
 });
 
+const TableDiv = styled(Box)({
+  position: "relative",
+  borderRadius: "10px",
+  backgroundColor: "white",
+  borderLeft: "solid white 15px",
+  boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.12) ",
+});
+
 const StyledTableContainer = styled(TableContainer)({
   backgroundColor: "white",
   borderRadius: "10px  10px 0px 0px ",
   position: "relative",
   fontFamily: "Poppins",
-  minHeight: 600,
-  maxHeight: 600,
+  minHeight: "40rem",
+  maxHeight: "40rem",
   scrollSnapType: "both mandatory",
   scrollSnapAlign: "start",
 });
 
 const StyledBottomTableContainer = styled(TableContainer)({
   backgroundColor: "white",
+
   borderRadius: "0px 0px 10px  10px",
   fontFamily: "Poppins",
   zIndex: 10,
@@ -283,9 +274,9 @@ const StyledTablePagination = styled(TablePagination)({
   },
 });
 
-const StyledTableFooter = styled(TableFooter)({
-  borderTop: "solid rgba(0, 0, 0, 0.12) 0.5px",
-});
+const StyledTableFooter = styled(TableFooter)({});
+
+const StyledTableRow = styled(TableRow)({});
 
 const MemberProfile = styled("div")(({ fontSize }) => ({
   display: "flex",
@@ -315,7 +306,7 @@ const StyledTableHead = styled(TableHead)({
 
 const StyledTableHeading = styled(TableCell)(({ minWidth }) => ({
   fontWeight: "500",
-  fontSize: "16px",
+  fontSize: "1.07em",
   fontFamily: "Poppins",
   minWidth: minWidth || 130,
   position: "sticky",
@@ -326,12 +317,12 @@ const StyledTableHeading = styled(TableCell)(({ minWidth }) => ({
 }));
 
 const StyledTableCell = styled(TableCell)(({ minWidth }) => ({
-  fontSize: "16px",
+  fontSize: "1.07em",
   borderBottom: "none",
   padding: "0px 15px",
   cursor: "pointer",
   fontFamily: "Poppins",
-  minWidth: minWidth || 130,
+  minWidth: minWidth || "1rem",
 }));
 
 const ToolTipContent = styled("div")({
@@ -417,11 +408,20 @@ const ActionStickyContainerSeparator = styled("div")({
   transform: "translate(-220px,0%)",
 });
 
-const ActionHeaderContainerSeparator = styled("div")({
-  width: "100%",
+const ActionPaginationContainerSeparator = styled("div")({
+  width: "calc(100% + 15px)",
   borderBottom: "solid rgba(0, 0, 0, 0.12) 1px",
   position: "absolute",
-  transform: "translate(0px,55px)",
+  bottom: 0,
+  transform: "translate(-15px,-52px)",
+  zIndex: 11,
+});
+
+const ActionHeaderContainerSeparator = styled("div")({
+  width: "calc(100% + 15px)",
+  borderBottom: "solid rgba(0, 0, 0, 0.12) 1px",
+  position: "absolute",
+  transform: "translate(-15px,55px)",
   zIndex: 10,
 });
 
